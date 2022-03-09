@@ -23,7 +23,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: alpine
+          repository: alpine/git
       inputs:
       - name: source
         path: .
@@ -35,7 +35,6 @@ jobs:
         - -c
         - |
           #!/usr/bin/env sh
-          apk add --no-cache git
           git rev-parse --short HEAD > docker-tags/tags.txt
   - task: build
     privileged: true
@@ -60,16 +59,4 @@ jobs:
         context: .
         manual: false
       run:
-        path: entrypoint.sh
-        args:
-        - build
-        - --frontend
-        - dockerfile.v0
-        - --local
-        - context=.
-        - --local
-        - dockerfile=.
-        - --opt
-        - platform=aarch64,arm,ppc64le,s390x,x86_64
-        - --output
-        - type=image,name=docker.io/redxef/concourse-buildkit,push=true
+        path: build
