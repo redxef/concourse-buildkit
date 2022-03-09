@@ -13,6 +13,11 @@ fail() {
     exit 1
 }
 
+echo_and_run() {
+    echo "$@"
+    "$@"
+}
+
 docker_login() {
     # TODO: detect registry url
     mkdir -p "$HOME/.docker"
@@ -62,7 +67,7 @@ build() {
         done < "$additional_tags"
     fi
 
-    buildctl-daemonless.sh \
+    echo_and_run buildctl-daemonless.sh \
         build \
         --frontend dockerfile.v0 \
         --local context="$context" \
