@@ -63,7 +63,7 @@ build() {
             if [ -z "$line" ]; then
                 continue
             fi
-            final_tag="$final_tag,$repository:$line"
+            final_tag="$repository:$line,$final_tag"
         done < "$additional_tags"
     fi
 
