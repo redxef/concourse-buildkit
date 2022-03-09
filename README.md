@@ -10,3 +10,7 @@ Currently only the docker registry is supported.
 
 - username: Optional. The username used to log into the registry.
 - password: Optional. The password used to log into the registry.
+
+## Example
+
+To view a simple invocation just look at [pipeline.yml](ci/pipeline.yml).

@@ -1,0 +1,41 @@
+---
+resources:
+- name: source
+  type: git
+  source:
+    uri: https://gitea.redxef.at/redxef/concourse-buildkit
+    branch: master
+
+jobs:
+- name: build-push
+  plan:
+  - get: source
+    trigger: true
+  - task: build
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: redxef/concourse-buildkit
+      inputs:
+      - name: source
+        path: .
+      params:
+        username: ((docker.username))
+        password: ((docker.password))
+      run:
+        path: entrypoint.sh
+        args:
+        - build
+        - --frontend
+        - dockerfile.v0
+        - --local
+        - context=.
+        - --local
+        - dockerfile=.
+        - --opt
+        - platform=aarch64,arm,ppc64le,s390x,x86_64
+        - --output
+        - type=image,name=docker.io/redxef/concourse-buildkit,push=true
