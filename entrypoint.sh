@@ -73,7 +73,7 @@ build() {
         --local context="$context" \
         --local dockerfile="$context" \
         $platform \
-        --output type=image,\""$final_tag"\",push="$push"
+        --output type=image,\"name="$final_tag"\",push="$push"
 }
 
 if [ -z "$manual" ]; then
