@@ -5,11 +5,17 @@ resources:
   source:
     uri: https://gitea.redxef.at/redxef/concourse-buildkit
     branch: master
+- name: upstream-image
+  type: registry-image
+  source:
+    repository: moby/buildkit
 
 jobs:
 - name: build-push
   plan:
   - get: source
+    trigger: true
+  - get: upstream-image
     trigger: true
   - task: build
     privileged: true
