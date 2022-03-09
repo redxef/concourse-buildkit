@@ -58,7 +58,7 @@ build() {
     fi
 
     final_tag="$repository:$tag"
-    if [ -z "$additional_tags" ]; then
+    if [ -n "$additional_tags" ]; then
         while read -r line; do
             if [ -z "$line" ]; then
                 continue
