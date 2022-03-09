@@ -5,6 +5,7 @@ resources:
   source:
     uri: https://gitea.redxef.at/redxef/concourse-buildkit
     branch: master
+    fetch_tags: true
 - name: upstream-image
   type: registry-image
   source:
@@ -36,6 +37,9 @@ jobs:
         - |
           #!/usr/bin/env sh
           git rev-parse --short HEAD > docker-tags/tags.txt
+          git show-ref --tags | \
+              sed -n "/$(git rev-parse HEAD)/ s|$(git rev-parse HEAD).refs/tags/||gp" \
+              >> docker-tags/tags.txt
   - task: build
     privileged: true
     config:
