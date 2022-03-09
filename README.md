@@ -5,7 +5,6 @@ since buildx is flakey for me.
 
 Currently only the docker registry is supported.
 
-
 ## parameters
 
 - repository: Required. The repository of the image.
@@ -17,6 +16,7 @@ Currently only the docker registry is supported.
 - manual: Optional. Don't use params and instead supply all arguments via the command line, default: `false`
 - username: Optional. The username used to log into the registry.
 - password: Optional. The password used to log into the registry.
+
 ## Example
 
 To view a simple invocation just look at [pipeline.yml](ci/pipeline.yml).
