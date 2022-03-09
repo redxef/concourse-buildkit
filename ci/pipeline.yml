@@ -17,6 +17,26 @@ jobs:
     trigger: true
   - get: upstream-image
     trigger: true
+  - task: compute-docker-tags:
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: alpine
+      inputs:
+      - name: source
+        path: .
+      outputs:
+      - name: docker-tags
+      run:
+        path: sh
+        args:
+        - -c
+        - |
+        #!/usr/bin/env sh
+        apk add --no-cache git
+        git rev-parse --short HEAD > docker-tags/tags.txt
   - task: build
     privileged: true
     config:
@@ -28,9 +48,17 @@ jobs:
       inputs:
       - name: source
         path: .
+      - name: docker-tags
       params:
         username: ((docker.username))
         password: ((docker.password))
+        repository: docker.io/redxef/concourse-buildkit
+        tag: latest
+        additional_tags: docker-tags/tags.txt
+        push: true
+        platform: aarch64,arm,ppc64le,s390x,x86_64
+        context: .
+        manual: false
       run:
         path: entrypoint.sh
         args:

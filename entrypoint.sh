@@ -8,6 +8,11 @@ DOCKER_LOGIN_FILE_TMPL='{
     }
 }'
 
+fail() {
+    echo "Error:" "$@" 1>&2
+    exit 1
+}
+
 docker_login() {
     # TODO: detect registry url
     mkdir -p "$HOME/.docker"
@@ -18,7 +23,60 @@ docker_login() {
 }
 
 if [ -n "$username" ]; then
+    if [ -z "$password" ]; then
+        fail "need to also give password when logging in"
+    fi
     docker_login
 fi
 
-buildctl-daemonless.sh "$@"
+plain() {
+    buildctl-daemonless.sh "$@"
+}
+
+build() {
+    if [ -z "$repository" ]; then
+        fail "missing argument: repository"
+    fi
+    if [ -z "$tag" ]; then
+        tag=latest
+    fi
+    if [ -z "$push" ]; then
+        push=false
+    fi
+    if [ -z "$context" ]; then
+        context=.
+    fi
+    if [ -z "$platform" ]; then
+        platform=""
+    else
+        platform="--opt platform=$platform"
+    fi
+
+    final_tag="$repository:$tag"
+    if [ -z "$additional_tags" ]; then
+        while read -r line; do
+            if [ -z "$line" ]; then
+                continue
+            fi
+            final_tag="$final_tag,$repository:$line"
+        done < "$additional_tags"
+    fi
+
+    buildctl-daemonless.sh \
+        build \
+        --frontend dockerfile.v0 \
+        --local context="$context" \
+        --local dockerfile="$context" \
+        $platform \
+        --output type=image,\""$final_tag"\",push="$push"
+}
+
+if [ -z "$manual" ]; then
+    manual=false
+fi
+
+if "$manual"; then
+    plain "$@"
+else
+    build
+fi
