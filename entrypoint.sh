@@ -23,8 +23,12 @@ echo_and_run() {
 docker_login() {
     login_name="$1"
     if [ -z "$login_name" ]; then
-        login_name=docker.io
+        login_name="$DEFAULT_DOMAIN"
     fi
+    if [ "$login_name" = "$DEFAULT_DOMAIN" ]; then
+        login_name="$LEGACY_DEFAULT_DOMAIN/v1/"
+    fi
+    login_name="https://$login_name"
     # TODO: detect registry url
     mkdir -p "$HOME/.docker"
     echo "$DOCKER_LOGIN_FILE_TMPL" | \
@@ -102,7 +106,7 @@ if [ -n "$username" ]; then
         fail "need to also give password when logging in"
     fi
     if [ -z "$repository" ]; then
-        docker_login "$DEFAULT_DOMAIN"
+        docker_login ''
     else
         docker_login "$(split_repo_domain "$repository" | head -n1)"
     fi
