@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+DEFAULT_DOMAIN=docker.io
+LEGACY_DEFAULT_DOMAIN=index.docker.io
 DOCKER_LOGIN_FILE_TMPL='{
     "auths": {
         "{{REGISTRY_URL}}": {
@@ -19,23 +21,42 @@ echo_and_run() {
 }
 
 docker_login() {
+    login_name="$1"
+    if [ -z "$login_name" ]; then
+        login_name=docker.io
+    fi
     # TODO: detect registry url
     mkdir -p "$HOME/.docker"
     echo "$DOCKER_LOGIN_FILE_TMPL" | \
         sed -e "s|{{BASE64_UNAME_PW}}|$(printf '%s:%s' "$username" "$password" | base64)|g" \
-            -e "s|{{REGISTRY_URL}}|https://index.docker.io/v1/|g" \
+            -e "s|{{REGISTRY_URL}}|$login_name|g" \
         > "$HOME/.docker/config.json"
 }
 
-if [ -n "$username" ]; then
-    if [ -z "$password" ]; then
-        fail "need to also give password when logging in"
-    fi
-    docker_login
-fi
-
 plain() {
     buildctl-daemonless.sh "$@"
+}
+
+split_repo_domain() {
+    domain_part="$(echo "$1" | sed -n 's|^\([^/]*\)/.*$|\1|p')"
+    other_part="$(echo "$1" | sed -n "s|^$domain_part/\?\(.*\)$|\1|p")"
+
+    if [ -z "$domain_part" ]; then
+        domain_part="$DEFAULT_DOMAIN"
+        other_part="$other_part"
+    elif echo "$domain_part" | grep -Evq '\.|:' && [ "$domain_part" != 'localhost' ]; then
+        # ^ docker sourcecode checks if $domain_part == $domain_part.lower() in effect checking if all is lower case
+        domain_part="$DEFAULT_DOMAIN"
+        other_part="$1" # we deviate here from the reference docker implementation
+    fi
+    if [ "$domain_part" = "$LEGACY_DEFAULT_DOMAIN" ]; then
+        domain_part="$DEFAULT_DOMAIN"
+    fi
+    if [ "$domain_part" = "$DEFAULT_DOMAIN" ] && echo "$other_part" | grep -vq /; then
+        other_part="library/$other_part"
+    fi
+    echo "$domain_part"
+    echo "$other_part"
 }
 
 build() {
@@ -75,6 +96,17 @@ build() {
         $platform \
         --output type=image,\"name="$final_tag"\",push="$push"
 }
+
+if [ -n "$username" ]; then
+    if [ -z "$password" ]; then
+        fail "need to also give password when logging in"
+    fi
+    if [ -z "$repository" ]; then
+        docker_login "$DEFAULT_DOMAIN"
+    else
+        docker_login "$(split_repo_domain "$repository" | head -n1)"
+    fi
+fi
 
 if [ -z "$manual" ]; then
     manual=false
