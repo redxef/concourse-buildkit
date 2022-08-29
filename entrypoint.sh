@@ -47,7 +47,7 @@ split_repo_domain() {
 
     if [ -z "$domain_part" ]; then
         domain_part="$DEFAULT_DOMAIN"
-        other_part="$other_part"
+        # other_part="$other_part"
     elif echo "$domain_part" | grep -Evq '\.|:' && [ "$domain_part" != 'localhost' ]; then
         # ^ docker sourcecode checks if $domain_part == $domain_part.lower() in effect checking if all is lower case
         domain_part="$DEFAULT_DOMAIN"
@@ -64,12 +64,6 @@ split_repo_domain() {
 }
 
 build() {
-    if [ -z "$repository" ]; then
-        fail "missing argument: repository"
-    fi
-    if [ -z "$tag" ]; then
-        tag=latest
-    fi
     if [ -z "$dest" ]; then
         fail "missing argument: dest"
     fi
@@ -82,23 +76,13 @@ build() {
         platform="--opt platform=$platform"
     fi
 
-    final_tag="$repository:$tag"
-    if [ -n "$additional_tags" ]; then
-        while read -r line; do
-            if [ -z "$line" ]; then
-                continue
-            fi
-            final_tag="$repository:$line,$final_tag"
-        done < "$additional_tags"
-    fi
-
     echo_and_run buildctl-daemonless.sh \
         build \
         --frontend dockerfile.v0 \
         --local context="$context" \
         --local dockerfile="$context" \
         $platform \
-        --output type=oci,dest=\"$dest\"
+        --output type=oci,dest=\""$dest"\"
 }
 
 if [ -n "$username" ]; then

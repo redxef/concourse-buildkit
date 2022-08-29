@@ -7,9 +7,6 @@ Currently only the docker registry is supported.
 
 ## parameters
 
-- repository: Required. The repository of the image.
-- tag: Optional. The tag for the image, default: `latest`
-- additional_tags: Optional. Path to a file containing one additional tag per line.
 - dest: Required. The output path for the oci image.
 - platform: Optional. A comma seperated list of target platforms, default: current platform
 - context: The context with which to build.
