@@ -33,7 +33,7 @@ build() {
         --local context="$context" \
         --local dockerfile="$context" \
         $platform \
-        --output type=oci,dest=\""$dest"\"
+        --output type=oci,dest="$dest"
 }
 
 if [ -z "$manual" ]; then
