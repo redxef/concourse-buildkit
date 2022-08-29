@@ -48,6 +48,7 @@ jobs:
         type: registry-image
         source:
           repository: redxef/concourse-buildkit
+          tag: v0.2.1
       inputs:
       - name: source
         path: .

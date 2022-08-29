@@ -70,8 +70,8 @@ build() {
     if [ -z "$tag" ]; then
         tag=latest
     fi
-    if [ -z "$push" ]; then
-        push=false
+    if [ -z "$dest" ]; then
+        fail "missing argument: dest"
     fi
     if [ -z "$context" ]; then
         context=.
@@ -98,7 +98,7 @@ build() {
         --local context="$context" \
         --local dockerfile="$context" \
         $platform \
-        --output type=image,\"name="$final_tag"\",push="$push"
+        --output type=oci,dest=\"$dest\"
 }
 
 if [ -n "$username" ]; then
