@@ -11,8 +11,6 @@ Currently only the docker registry is supported.
 - platform: Optional. A comma seperated list of target platforms, default: current platform
 - context: The context with which to build.
 - manual: Optional. Don't use params and instead supply all arguments via the command line, default: `false`
-- username: Optional. The username used to log into the registry.
-- password: Optional. The password used to log into the registry.
 
 ## Example
 
