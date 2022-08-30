@@ -1,9 +1,6 @@
 # concourse-buildkit
 
-A docker image to build multiarch images on [concourse](https://concourse-ci.org)
-since buildx is flakey for me.
-
-Currently only the docker registry is supported.
+A docker image to build multiarch images on [concourse](https://concourse-ci.org).
 
 ## parameters
 
